@@ -10,6 +10,7 @@ class Restrict(str, Enum):
 class IllustBase(SQLModel):
     p_id: int #pixivId
     page: int #页数
+    page_index: int = 0
     restrict: Restrict #敏感内容分类
     link: str | None = None #图片url
     title: str #图片名
