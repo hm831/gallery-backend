@@ -21,6 +21,7 @@ class IllustBase(SQLModel):
     date: datetime #图片pixiv上传日期
     width: int
     height: int
+    bookmark: bool
     bmk_id: str = Field(index=True) #收藏夹id，id越大表示越近收藏
 
 class Illust(IllustBase, table=True):
