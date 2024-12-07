@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 
 from .database import create_db_and_tables
-from .routers import illusts, portfolios
+from .routers import albums, illusts
 import uvicorn
 
 @asynccontextmanager
@@ -22,4 +22,4 @@ app.add_middleware(
 )
 
 app.include_router(illusts.router)
-app.include_router(portfolios.router)
+app.include_router(albums.router)
