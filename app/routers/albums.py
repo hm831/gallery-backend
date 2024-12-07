@@ -71,7 +71,7 @@ async def read_author_info(
         "name": author[0],
         "profile": server + author[1],
         "post": server + author[2],
-        "author_id": author[3]
+        "authorId": author[3]
     } for author in authors]
     return results
 
