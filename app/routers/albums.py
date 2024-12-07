@@ -65,11 +65,13 @@ async def read_author_info(
     limit: Annotated[int, Query(le=300)] = 100,
     server: str = Depends(lambda: get_server(host=host, port=port))
 ):
-    authors = session.exec(select(Author.name, Author.profile, Author.post).offset(offset).limit(limit)).all()
+    query = select(Author.name, Author.profile, Author.post, Author.author_id).offset(offset).limit(limit)
+    authors = session.exec(query).all()
     results = [{
         "name": author[0],
         "profile": server + author[1],
-        "post": server + author[2]
+        "post": server + author[2],
+        "author_id": author[3]
     } for author in authors]
     return results
 
