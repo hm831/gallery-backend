@@ -2,12 +2,12 @@ from typing import Annotated
 
 from ..database import get_session
 from sqlmodel import Session, select
-from sqlalchemy import desc
+from sqlalchemy import desc, func
 
 from fastapi import Depends, APIRouter, Query, UploadFile, File, Form
 from ..dependencies import get_server, upload_img_server_file, upload_img_server
 
-from ..models import Author, AuthorBase, Artwork, ArtworkBase
+from ..models import Author, AuthorBase, Artwork, ArtworkBase, ArtworkRestrict
 
 SessionDep = Annotated[Session, Depends(get_session)]
 
@@ -86,7 +86,11 @@ async def create_artwork(artwork: ArtworkBase, file_path: str, session: SessionD
     return db_artwork
 
 @router.get("/artwork/{author_id}", tags=["artwork"])
-async def read_author_artworks(author_id: int, session: SessionDep):
+async def read_author_artworks(
+    author_id: int, 
+    session: SessionDep, 
+    server: str = Depends(lambda: get_server(host=host, port=port))
+):
     query = select(Artwork.id, Artwork.title, Artwork.link)
     query = query.where(Artwork.user_id == author_id)
     query = query.order_by(desc(Artwork.date))
@@ -94,7 +98,33 @@ async def read_author_artworks(author_id: int, session: SessionDep):
     results = [{
         "id": artwork[0],
         "title": artwork[1],
-        "link": artwork[2]
+        "link": server + artwork[2]
+    } for artwork in artworks]
+    return results
+
+@router.get("/artwork/gallery/select", tags=["artwork"])
+async def read_artwork_gallery(
+    session: SessionDep, 
+    allage: bool = True,
+    r18: bool = False,
+    limit: Annotated[int, Query(le=300)] = 100,
+    server: str = Depends(lambda: get_server(host=host, port=port))
+):
+    query = select(Artwork.id, Artwork.title, Artwork.link, Author.name)
+    query = query.join(Author, Artwork.user_id == Author.author_id)
+    restrict_select = []
+    if allage:
+        restrict_select.append(ArtworkRestrict.AllAges)
+    if r18:
+        restrict_select.append(ArtworkRestrict.R18)
+    query = query.where(Artwork.restrict_type.in_(restrict_select))
+    query = query.order_by(func.RAND()).limit(limit)
+    artworks = session.exec(query).all()
+    results = [{
+        "id": artwork[0],
+        "title": artwork[1],
+        "link": server + artwork[2],
+        "author": artwork[3]
     } for artwork in artworks]
     return results
 

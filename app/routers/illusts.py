@@ -74,7 +74,7 @@ async def read_illusts(
     limit: Annotated[int, Query(le=300)] = 100,
     server: str = Depends(lambda: get_server(host=host, port=port))
 ):
-    query = select(Illust.id, Illust.title,Illust.link)
+    query = select(Illust.id, Illust.title, Illust.link, Illust.user)
     restrict_select = []
     if sfw:
         restrict_select.append(Restrict.SFW)
@@ -87,7 +87,8 @@ async def read_illusts(
     results = [{
         "id": illust[0],
         "title": illust[1],
-        "link": server + illust[2]
+        "link": server + illust[2],
+        "author": illust[3]
     } for illust in illusts]
     return results
     

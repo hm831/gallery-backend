@@ -4,7 +4,6 @@ from contextlib import asynccontextmanager
 
 from .database import create_db_and_tables
 from .routers import albums, illusts
-import uvicorn
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):

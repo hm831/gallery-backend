@@ -2,8 +2,8 @@ from sqlmodel import SQLModel, Field
 from datetime import datetime
 from enum import Enum
 
-class Restrict(str, Enum):
-    AllAges =  "AllAges",
+class ArtworkRestrict(str, Enum):
+    AllAges =  "AllAges"
     R18 =  "R-18" 
 
 class ArtworkBase(SQLModel):
@@ -15,7 +15,7 @@ class ArtworkBase(SQLModel):
     tags: str
     user_id: int
     description: str | None = None
-    restrict_type: Restrict
+    restrict_type: ArtworkRestrict
     date: datetime #图片pixiv上传日期
     width: int
     height: int
