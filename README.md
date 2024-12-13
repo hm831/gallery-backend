@@ -1,3 +1,3 @@
-# gallery_backend
+# gallery-backend
 
 测试
