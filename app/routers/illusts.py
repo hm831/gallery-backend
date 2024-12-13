@@ -14,17 +14,23 @@ router = APIRouter(
     tags=["illusts"]
 )
 
-host = "127.0.0.1"
+folder = "/pixiv/p_stars"
+host = "192.168.3.3"
 port = 8001
 
 @router.post("/create/")
 async def create_illust(
     illust: IllustBase,
-    file_path: str,
+    local_file_path: str,
     session: SessionDep, 
 ):
     db_illust = Illust.model_validate(illust)
-    url = upload_img_server(host=host, port=port, file_path=file_path)
+    server_file_name = local_file_path.split("/")[-1]
+    server_file_path = folder
+    url = upload_img_server(host=host, port=port, 
+                            local_file_path=local_file_path, 
+                            server_file_name=server_file_name, 
+                            server_file_path=server_file_path)
     db_illust.link = url
     session.add(db_illust)
     session.commit()
@@ -91,4 +97,27 @@ async def read_illusts(
         "author": illust[3]
     } for illust in illusts]
     return results
+
+@router.get("/links/all")
+async def read_all_links(session: SessionDep):
+    query = select(Illust.id, Illust.link)
+    illusts = session.exec(query).all()
+    results = [{
+        "id": illust[0],
+        "link": illust[1]
+    } for illust in illusts]
+    return results
     
+@router.put("/update/link/{id}")
+async def update_link(
+    id: int,
+    new_link: str,
+    session: SessionDep
+):
+    query = select(Illust).where(Illust.id == id)
+    illust = session.exec(query).one()
+    illust.link = new_link
+    session.add(illust)
+    session.commit()
+    session.refresh(illust)
+    return illust

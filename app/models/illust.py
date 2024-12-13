@@ -22,7 +22,7 @@ class IllustBase(SQLModel):
     width: int
     height: int
     bookmark: bool
-    bmk_id: str = Field(index=True) #收藏夹id，id越大表示越近收藏
+    bmk_id: str | None = Field(default=None, index=True) #收藏夹id，id越大表示越近收藏
 
 class Illust(IllustBase, table=True):
     id: int | None = Field(default=None, primary_key=True)
